@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Find and run the nearest project-local agent index."""
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+
+DEFAULT_AGENT_DIRS = (".agents", ".codex", ".cursor-agent", ".agent-index")
+
+
+def candidate_names() -> tuple[str, ...]:
+    configured = os.environ.get("AGENT_INDEX_DIR_NAMES")
+    if not configured:
+        return DEFAULT_AGENT_DIRS
+    names = tuple(name.strip() for name in configured.split(":") if name.strip())
+    return names or DEFAULT_AGENT_DIRS
+
+
+def find_project_index(start: Path) -> Path | None:
+    for directory in (start, *start.parents):
+        for name in candidate_names():
+            script = directory / name / "project_index.py"
+            package = directory / name / "src" / "cli.py"
+            if script.exists() and package.exists():
+                return script
+    return None
+
+
+def main() -> int:
+    script = find_project_index(Path.cwd())
+    if script is None:
+        names = ", ".join(candidate_names())
+        print(f"agent-index: no project index found. Expected one of: {names}", file=sys.stderr)
+        return 1
+    os.execv(sys.executable, [sys.executable, str(script), *sys.argv[1:]])
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
