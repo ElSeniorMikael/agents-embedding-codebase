@@ -3,6 +3,3 @@ __pycache__/
 .DS_Store
 
 index/*
-!index/index.json
-!index/embeddings.json
-!index/query_embeddings.json
