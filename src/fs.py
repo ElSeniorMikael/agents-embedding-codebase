@@ -81,10 +81,13 @@ def read_text(path: Path) -> str | None:
         except UnicodeDecodeError:
             return None
 
-def file_entry(path: Path) -> FileEntry | None:
-    text = read_text(path)
-    if text is None:
-        return None
+def file_entry(path: Path, text: str) -> FileEntry:
     stat = path.stat()
     digest = hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()
     return FileEntry(path=rel(path), sha256=digest, size=stat.st_size, mtime_ns=stat.st_mtime_ns)
+
+def read_file_entry(path: Path) -> tuple[FileEntry, str] | None:
+    text = read_text(path)
+    if text is None:
+        return None
+    return file_entry(path, text), text

@@ -5,7 +5,7 @@ import json
 import re
 import time
 
-from .config import MAX_EMBED_TEXT_CHARS
+from .config import MAX_EMBED_TEXT_CHARS, MAX_QUERY_EMBEDDINGS
 from .embedding_providers import embedding_request, temporary_ollama_server
 from .storage import load_query_embeddings, write_query_embeddings
 from .vectors import normalize_vector
@@ -26,6 +26,18 @@ def embedding_cache_key(provider: str, model: str, dimensions: int | None, query
         separators=(",", ":"),
     )
     return hashlib.sha256(identity.encode("utf-8")).hexdigest()
+def prune_query_cache(cache: dict) -> None:
+    queries = cache.get("queries")
+    if not isinstance(queries, dict) or len(queries) <= MAX_QUERY_EMBEDDINGS:
+        return
+    ordered = sorted(
+        queries.items(),
+        key=lambda item: item[1].get("last_used_at", item[1].get("created_at", 0))
+        if isinstance(item[1], dict)
+        else 0,
+    )
+    for key, _ in ordered[: len(queries) - MAX_QUERY_EMBEDDINGS]:
+        queries.pop(key, None)
 def query_embedding(
     query: str,
     model: str,
@@ -44,17 +56,22 @@ def query_embedding(
         and cached.get("query") == normalized_query
         and isinstance(cached.get("normalized_embedding"), list)
     ):
+        cached["last_used_at"] = int(time.time())
+        write_query_embeddings(cache)
         return cached["normalized_embedding"]
     with temporary_ollama_server(provider == "ollama"):
         vector = embedding_request([query], model, dimensions, provider)[0]
     normalized_vector = normalize_vector(vector)
+    now = int(time.time())
     cache.setdefault("queries", {})[key] = {
         "provider": provider,
         "model": model,
         "dimensions": dimensions,
         "query": normalized_query,
         "normalized_embedding": normalized_vector,
-        "created_at": int(time.time()),
+        "created_at": now,
+        "last_used_at": now,
     }
+    prune_query_cache(cache)
     write_query_embeddings(cache)
     return normalized_vector

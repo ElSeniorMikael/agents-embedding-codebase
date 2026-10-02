@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections import defaultdict
 from pathlib import Path
 from typing import Iterable
 
@@ -18,10 +19,17 @@ def path_name_score(chunk: dict, query_tokens: Iterable[str]) -> float:
             score += 0.35
     return score
 def symbol_match_score(index: dict, chunk: dict, query_tokens: Iterable[str]) -> float:
-    score = 0.0
+    return symbol_list_match_score(index.get("symbols", []), chunk, query_tokens)
+
+def symbols_by_path(index: dict) -> dict[str, list[dict]]:
+    grouped: dict[str, list[dict]] = defaultdict(list)
     for symbol in index.get("symbols", []):
-        if symbol["path"] != chunk["path"]:
-            continue
+        grouped[symbol["path"]].append(symbol)
+    return dict(grouped)
+
+def symbol_list_match_score(symbols: Iterable[dict], chunk: dict, query_tokens: Iterable[str]) -> float:
+    score = 0.0
+    for symbol in symbols:
         if not (chunk["start"] <= symbol["line"] <= chunk["end"]):
             continue
         name = symbol["name"].lower()

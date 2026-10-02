@@ -1,0 +1,33 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v",
+  "generated_at": "2026-10-02",
+  "status": "passed",
+  "summary": {
+    "tests": 33,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "file": "tests/test_cli.py",
+      "tests": 5,
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_chunks_symbols.py",
+      "tests": 10,
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_fs_storage_indexer.py",
+      "tests": 9,
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_search_embeddings.py",
+      "tests": 9,
+      "status": "passed"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from .config import HYBRID_CANDIDATE_MULTIPLIER
 from .lexical_search import score_chunks
-from .search_utils import normalize_scores, path_name_score, symbol_match_score
+from .search_utils import normalize_scores, path_name_score, symbol_list_match_score, symbols_by_path
 from .semantic_search import score_semantic_chunks
 from .tokens import tokenize
 
@@ -23,12 +23,13 @@ def score_hybrid_chunks(
     semantic_scores = normalize_scores(semantic)
     chunks = {chunk["id"]: chunk for _, chunk in [*lexical, *semantic]}
     query_tokens = tokenize(query)
+    symbols = symbols_by_path(index)
     fused: list[tuple[float, dict]] = []
     for chunk_id, chunk in chunks.items():
         lexical_part = lexical_scores.get(chunk_id, 0.0)
         semantic_part = semantic_scores.get(chunk_id, 0.0)
         name_part = path_name_score(chunk, query_tokens)
-        symbol_part = symbol_match_score(index, chunk, query_tokens)
+        symbol_part = symbol_list_match_score(symbols.get(chunk["path"], []), chunk, query_tokens)
         score = (lexical_part * lexical_weight) + (semantic_part * semantic_weight) + name_part + symbol_part
         if lexical_part >= 0.92:
             score += 0.35

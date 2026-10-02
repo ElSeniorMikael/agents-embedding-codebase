@@ -8,6 +8,15 @@ from .config import (
     DEFAULT_LEXICAL_WEIGHT, DEFAULT_SEMANTIC_WEIGHT, EMBED_BATCH_SIZE,
 )
 
+def positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be at least 1")
+    return parsed
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Maintain a local agent project index.")
     subcommands = parser.add_subparsers(dest="command", required=True)
@@ -24,7 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     search = subcommands.add_parser("search", help="Search indexed symbols and chunks.")
     search.add_argument("query")
-    search.add_argument("--limit", type=int, default=8)
+    search.add_argument("--limit", type=positive_int, default=8)
     search.add_argument("--semantic", action="store_true", help="Rank chunks with cached semantic embeddings.")
     search.add_argument("--hybrid", action="store_true", help="Fuse lexical and semantic chunk rankings.")
     search.add_argument("--lexical-weight", type=float, default=DEFAULT_LEXICAL_WEIGHT, help="Hybrid lexical score weight.")
@@ -43,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_EMBED_DIMENSIONS,
         help="Embedding dimensions; use 0 for the model default.",
     )
-    embed.add_argument("--batch-size", type=int, default=EMBED_BATCH_SIZE)
+    embed.add_argument("--batch-size", type=positive_int, default=EMBED_BATCH_SIZE)
     embed.set_defaults(func=command_embed)
     return parser
 
