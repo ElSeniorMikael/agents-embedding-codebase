@@ -92,6 +92,20 @@ The folder does not need to be named `.agents`; `.codex`, `.cursor-agent`, or an
 
 `project_index.py` remains available as a compatibility entrypoint, but `agent-index` is the preferred command.
 
+## Agent startup rule
+
+Add the following rule to your project's `AGENTS.md` or your agent's equivalent project rules file so the index stays current across tasks and chats:
+
+```text
+At the start of every new task or chat, run `agent-index update` from inside
+the project before searching the index or scoping implementation work.
+Use the refreshed index to find relevant files, then read those files before editing.
+If semantic or hybrid search reports missing or stale embeddings, run
+`agent-index embed` with the configured provider before retrying the search.
+```
+
+`agent-index update` is incremental, so unchanged files do not need to be rechunked. See [Agent Workflow](docs/agent-workflow.md) for search guidance.
+
 ## References
 
 - [Commands](docs/commands.md)
