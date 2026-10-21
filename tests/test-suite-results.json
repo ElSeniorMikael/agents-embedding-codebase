@@ -3,7 +3,7 @@
   "generated_at": "2026-10-02",
   "status": "passed",
   "summary": {
-    "tests": 33,
+    "tests": 34,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -22,6 +22,11 @@
     {
       "file": "tests/test_fs_storage_indexer.py",
       "tests": 9,
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_installer.py",
+      "tests": 1,
       "status": "passed"
     },
     {

@@ -12,6 +12,26 @@ Requirements:
 
 Copy or clone this repository into the project you want to index. The folder name can be anything, but these examples use `.agents`:
 
+Install only the runtime files with the installer:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ElSeniorMikael/agents-embedding-codebase/main/install.sh | sh
+```
+
+By default this installs into `.agents/` in the current directory. To choose another folder:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ElSeniorMikael/agents-embedding-codebase/main/install.sh | AGENT_INDEX_INSTALL_DIR=.codex sh
+```
+
+To also install the global dispatcher into `$HOME/.local/bin`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ElSeniorMikael/agents-embedding-codebase/main/install.sh | AGENT_INDEX_INSTALL_GLOBAL=1 sh
+```
+
+Alternatively, copy or clone the full repository:
+
 ```bash
 cd your-project
 git clone <your-private-repo-url> .agents
