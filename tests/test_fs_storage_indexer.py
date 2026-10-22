@@ -27,14 +27,17 @@ class FilesystemTests(unittest.TestCase):
             self.assertIsNone(fs.read_text(binary_path))
 
     def test_read_file_entry_returns_metadata_and_text(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            path = Path(tmp) / "a.py"
-            path.write_text("print('hi')\n", encoding="utf-8")
-            with mock.patch.object(fs, "rel", lambda value: Path(value).relative_to(root).as_posix()):
-                entry, text = fs.read_file_entry(path)  # type: ignore[misc]
-            self.assertEqual(entry.path, "a.py")
-            self.assertEqual(text, "print('hi')\n")
+        for newline in ("\n", "\r\n"):
+            with self.subTest(newline=repr(newline)), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                path = root / "a.py"
+                expected = "print('hi')" + newline
+                path.write_bytes(expected.encode("utf-8"))
+                with mock.patch.object(fs, "rel", lambda value: Path(value).relative_to(root).as_posix()):
+                    entry, text = fs.read_file_entry(path)  # type: ignore[misc]
+                self.assertEqual(entry.path, "a.py")
+                self.assertEqual(text, expected)
+                self.assertEqual(entry.size, len(expected.encode("utf-8")))
 
 
 class StorageTests(unittest.TestCase):
