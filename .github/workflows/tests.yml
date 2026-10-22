@@ -3,14 +3,20 @@ name: Tests
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   unittest:
-    name: Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version:
           - "3.10"
           - "3.12"
@@ -24,7 +30,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Run test suite
+      - name: Run unit tests and native installer integration tests
         env:
           PYTHONDONTWRITEBYTECODE: "1"
         run: python -m unittest discover -s tests -v

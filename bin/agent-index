@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import sys
+import subprocess
 from pathlib import Path
 
 
@@ -15,7 +16,7 @@ def candidate_names() -> tuple[str, ...]:
     configured = os.environ.get("AGENT_INDEX_DIR_NAMES")
     if not configured:
         return DEFAULT_AGENT_DIRS
-    names = tuple(name.strip() for name in configured.split(":") if name.strip())
+    names = tuple(name.strip() for name in configured.split(os.pathsep) if name.strip())
     return names or DEFAULT_AGENT_DIRS
 
 
@@ -35,8 +36,7 @@ def main() -> int:
         names = ", ".join(candidate_names())
         print(f"agent-index: no project index found. Expected one of: {names}", file=sys.stderr)
         return 1
-    os.execv(sys.executable, [sys.executable, str(script), *sys.argv[1:]])
-    return 1
+    return subprocess.call([sys.executable, str(script), *sys.argv[1:]])
 
 
 if __name__ == "__main__":

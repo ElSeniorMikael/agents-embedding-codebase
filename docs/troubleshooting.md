@@ -56,6 +56,22 @@ If you use another folder name, configure the dispatcher:
 export AGENT_INDEX_DIR_NAMES=".my-agent-folder:.agents/embedding-codebase:.agents:.codex"
 ```
 
+## Windows launcher or installation problems
+
+Use `install.ps1` from PowerShell 5.1+; `install.sh` requires a POSIX shell. The local Windows command is:
+
+```powershell
+& .\.agents\embedding-codebase\bin\agent-index.cmd update
+```
+
+The launcher needs Python 3.10+ available as `python` or `py -3`. For global usage, install with `-InstallGlobal`, add `%LOCALAPPDATA%\agent-index\bin` (or your `-GlobalBinDir`) to your user PATH, and reopen the terminal. Both `agent-index.cmd` and the extensionless `agent-index` dispatcher must stay together.
+
+For multiple custom runtime paths, Windows uses a semicolon:
+
+```powershell
+$env:AGENT_INDEX_DIR_NAMES = ".my-agent-folder;.agents/embedding-codebase"
+```
+
 ## `No semantic embeddings found`
 
 Build embeddings before semantic or hybrid search:

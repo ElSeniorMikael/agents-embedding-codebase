@@ -2,13 +2,77 @@ from __future__ import annotations
 
 import os
 import json
+import sys
+import shutil
+import shlex
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 
+@unittest.skipIf(os.name == "nt", "POSIX shell installer; Windows has separate installer tests")
 class InstallerTests(unittest.TestCase):
+    def test_missing_or_old_python_is_installed_before_runtime(self) -> None:
+        repo = Path(__file__).resolve().parents[1]
+        for initial in ("missing", "old", "install-failure", "still-old"):
+            with self.subTest(initial=initial), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                tools = root / "tools"
+                tools.mkdir()
+                for name in ("dirname", "mkdir", "cp", "chmod", "find"):
+                    (tools / name).symlink_to(shutil.which(name))
+                def script(name: str, body: str) -> None:
+                    path = tools / name
+                    path.write_text("#!/bin/sh\n" + body)
+                    path.chmod(0o755)
+                script("uname", "echo Linux\n")
+                script("id", "echo 0\n")
+                if initial in ("old", "still-old"):
+                    script("python3", "exit 1\n")
+                body = 'echo "$*" >> "$INSTALL_LOG"\n'
+                if initial == "install-failure":
+                    body += "exit 1\n"
+                elif initial != "still-old":
+                    body += 'if [ "$1" = install ]; then /bin/ln -sf ' + shlex.quote(sys.executable) + ' "$TOOLS/python3"; fi\n'
+                script("apt-get", body)
+                env = {k: v for k, v in os.environ.items() if not k.startswith("AGENT_INDEX_")}
+                env.update(PATH=str(tools), TOOLS=str(tools), INSTALL_LOG=str(root / "install.log"))
+                result = subprocess.run([str(repo / "install.sh")], cwd=root, env=env, capture_output=True, text=True)
+                if initial in ("install-failure", "still-old"):
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse((root / ".agents").exists())
+                else:
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertTrue((root / ".agents/embedding-codebase/project_index.py").exists())
+                    self.assertEqual((root / "install.log").read_text(), "update\ninstall -y python3\n")
+
+    def test_ollama_flag_is_opt_in_and_propagates_failure(self) -> None:
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            fake_bin = project / "fake-bin"
+            fake_bin.mkdir()
+            log = project / "setup.log"
+            python = fake_bin / "python3"
+            python.write_text("#!/bin/sh\nif [ \"$1\" = '-m' ]; then\n  echo \"$*\" >> \"$SETUP_LOG\"\n  exit \"${SETUP_EXIT:-0}\"\nfi\nexec " + str(Path(sys.executable)) + " \"$@\"\n")
+            python.chmod(0o755)
+            ollama = fake_bin / "ollama"
+            ollama.write_text("#!/bin/sh\nexit 0\n")
+            ollama.chmod(0o755)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("AGENT_INDEX_")}
+            env.update(PATH=str(fake_bin) + os.pathsep + env["PATH"], SETUP_LOG=str(log))
+            command = [str(repo_root / "install.sh")]
+            subprocess.run(command, cwd=project, env=env, check=True, capture_output=True)
+            self.assertFalse(log.exists())
+            subprocess.run(command + ["--with-ollama"], cwd=project, env=env, check=True, capture_output=True)
+            self.assertEqual(log.read_text().strip(), "-m src.setup_ollama")
+            env["SETUP_EXIT"] = "1"
+            result = subprocess.run(command + ["--with-ollama"], cwd=project, env=env, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            result = subprocess.run(command + ["--unknown"], cwd=project, env=env, capture_output=True)
+            self.assertEqual(result.returncode, 2)
+
     def test_installer_copies_only_runtime_files(self) -> None:
         repo_root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as tmp:
