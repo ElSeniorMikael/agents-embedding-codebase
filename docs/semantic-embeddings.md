@@ -11,7 +11,7 @@ ollama pull nomic-embed-text
 agent-index embed
 ```
 
-This creates a cached semantic vector embedding for each indexed chunk. If installed as `.agents`, the cache lives at `.agents/index/embeddings.json`.
+This creates a cached semantic vector embedding for each indexed chunk. If installed as `.agents/embedding-codebase`, the cache lives at `.agents/embedding-codebase/index/embeddings.json`.
 
 The default provider is local Ollama using `nomic-embed-text`, so no OpenAI API key is required. The script starts `ollama serve` automatically when needed and stops the temporary server when it is done. If Ollama is already running, the script reuses it and leaves it running.
 
@@ -27,7 +27,7 @@ OPENAI_API_KEY=... agent-index embed --provider openai
 
 Chunk embeddings store normalized vectors, so semantic and hybrid search can score with dot products instead of recalculating every chunk norm. The raw provider output is still kept for compatibility.
 
-Semantic and hybrid searches also cache query embeddings. If installed as `.agents`, the cache lives at `.agents/index/query_embeddings.json`.
+Semantic and hybrid searches also cache query embeddings. If installed as `.agents/embedding-codebase`, the cache lives at `.agents/embedding-codebase/index/query_embeddings.json`.
 
 Cache entries are keyed by provider, model, dimensions, and normalized query text, so repeated searches reuse the same query vector without changing ranking results.
 

@@ -10,7 +10,7 @@ Requirements:
 - No Python package installs are required for lexical indexing and search
 - For vector/semantic search, choose one embedding backend: Ollama with `nomic-embed-text` pulled OR OpenAI with `OPENAI_API_KEY` configured
 
-Copy or clone this repository into the project you want to index. The folder name can be anything, but these examples use `.agents`:
+Copy or clone this repository into the project you want to index. The folder name can be anything, but these examples use `.agents/embedding-codebase`:
 
 Install only the runtime files with the installer:
 
@@ -18,7 +18,7 @@ Install only the runtime files with the installer:
 curl -fsSL https://raw.githubusercontent.com/ElSeniorMikael/agents-embedding-codebase/main/install.sh | sh
 ```
 
-By default this installs into `.agents/` in the current directory. To choose another folder:
+By default this installs into `.agents/embedding-codebase/` in the current directory. To choose another folder:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ElSeniorMikael/agents-embedding-codebase/main/install.sh | AGENT_INDEX_INSTALL_DIR=.codex sh
@@ -34,7 +34,7 @@ Alternatively, copy or clone the full repository:
 
 ```bash
 cd your-project
-git clone <your-private-repo-url> .agents
+git clone <your-private-repo-url> .agents/embedding-codebase
 ```
 
 The installed folder must include:
@@ -43,13 +43,13 @@ The installed folder must include:
 - `project_index.py`
 - `src/`
 
-The script creates `.agents/index/` and the cache files automatically on first run.
+The script creates `.agents/embedding-codebase/index/` and the cache files automatically on first run.
 
 Install the global command dispatcher once:
 
 ```bash
 mkdir -p "$HOME/.local/bin"
-cp .agents/bin/agent-index "$HOME/.local/bin/agent-index"
+cp .agents/embedding-codebase/bin/agent-index "$HOME/.local/bin/agent-index"
 chmod +x "$HOME/.local/bin/agent-index"
 ```
 
@@ -94,21 +94,24 @@ agent-index update
 agent-index search "task topic"
 ```
 
-Generated cache files live under `.agents/index/`. Add `.agents/index.config.json` to exclude project-specific generated files or large text files. Set `AGENT_INDEX_ROOT=/path/to/project` only if the folder is not installed directly inside the project root.
+Generated cache files live under `.agents/embedding-codebase/index/`. Add `.agents/embedding-codebase/index.config.json` to exclude project-specific generated files or large text files. The default nested layout indexes the project containing `.agents`. Set `AGENT_INDEX_ROOT=/path/to/project` to override the detected project root.
 
 Expected installed layout:
 
 ```bash
 your-project/
   .agents/
-    project_index.py
-    bin/
-      agent-index
-    README.md
-    src/
+    embedding-codebase/
+      project_index.py
+      bin/
+        agent-index
+      README.md
+      src/
 ```
 
-The folder does not need to be named `.agents`; `.codex`, `.cursor-agent`, or any other project-local agent folder works. The script indexes the parent directory by default and stores generated cache files inside its own `index/` folder.
+The runtime keeps its files and cache inside `.agents/embedding-codebase/`, alongside any other tools in `.agents/`. Existing direct installations in `.agents`, `.codex`, `.cursor-agent`, or `.agent-index` still work and index their parent directory. For a custom installation path, set `AGENT_INDEX_DIR_NAMES` to that project-relative path so the dispatcher can find it. A runtime directly inside `.agents/` indexes the project containing `.agents`; other layouts index the runtime's parent unless `AGENT_INDEX_ROOT` is set.
+
+If you already installed the global dispatcher, repeat the dispatcher installation command above so it recognizes the new nested layout.
 
 `project_index.py` remains available as a compatibility entrypoint, but `agent-index` is the preferred command.
 

@@ -14,7 +14,7 @@ The tool indexes:
 
 The default excludes skip `node_modules`, virtualenvs, git data, build outputs, dist outputs, caches, binaries, TypeScript build metadata, declaration output, and files larger than 512 KiB.
 
-Add `index.config.json` inside the installed agent folder if you want more project-specific excludes. If installed as `.agents`, use `.agents/index.config.json`:
+Add `index.config.json` inside the installed agent folder if you want more project-specific excludes. If installed as `.agents/embedding-codebase`, use `.agents/embedding-codebase/index.config.json`:
 
 ```json
 {

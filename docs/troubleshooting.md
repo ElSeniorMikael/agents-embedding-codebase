@@ -8,7 +8,7 @@ Install it:
 
 ```bash
 mkdir -p "$HOME/.local/bin"
-cp .agents/bin/agent-index "$HOME/.local/bin/agent-index"
+cp .agents/embedding-codebase/bin/agent-index "$HOME/.local/bin/agent-index"
 chmod +x "$HOME/.local/bin/agent-index"
 ```
 
@@ -30,7 +30,8 @@ Then restart the shell or source the profile file.
 
 Run the command from inside a project that has this tool installed as one of:
 
-- `.agents`
+- `.agents/embedding-codebase` (default)
+- `.agents` (legacy)
 - `.codex`
 - `.cursor-agent`
 - `.agent-index`
@@ -40,16 +41,19 @@ Expected layout:
 ```bash
 your-project/
   .agents/
-    project_index.py
-    src/
-    bin/
-      agent-index
+    embedding-codebase/
+      project_index.py
+      src/
+      bin/
+        agent-index
 ```
+
+If an older global dispatcher cannot find the nested installation, reinstall it using the command above.
 
 If you use another folder name, configure the dispatcher:
 
 ```bash
-export AGENT_INDEX_DIR_NAMES=".my-agent-folder:.agents:.codex"
+export AGENT_INDEX_DIR_NAMES=".my-agent-folder:.agents/embedding-codebase:.agents:.codex"
 ```
 
 ## `No semantic embeddings found`
@@ -105,7 +109,7 @@ agent-index search "task topic" --hybrid --auto-embed
 
 ## Wrong project is being indexed
 
-By default, the installed agent folder indexes its parent directory. If the folder is not installed directly under the target project, set:
+The default `.agents/embedding-codebase` installation indexes the project containing `.agents`. Direct installations such as `.agents` or `.codex` index their parent directory. To override the detected root, set:
 
 ```bash
 export AGENT_INDEX_ROOT=/path/to/project

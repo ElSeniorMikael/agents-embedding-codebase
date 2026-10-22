@@ -2,7 +2,7 @@
 set -eu
 
 REPO_ARCHIVE_URL="${AGENT_INDEX_ARCHIVE_URL:-https://github.com/ElSeniorMikael/agents-embedding-codebase/archive/refs/heads/main.tar.gz}"
-INSTALL_DIR="${AGENT_INDEX_INSTALL_DIR:-.agents}"
+INSTALL_DIR="${AGENT_INDEX_INSTALL_DIR:-.agents/embedding-codebase}"
 GLOBAL_BIN_DIR="${AGENT_INDEX_GLOBAL_BIN_DIR:-$HOME/.local/bin}"
 INSTALL_GLOBAL="${AGENT_INDEX_INSTALL_GLOBAL:-0}"
 

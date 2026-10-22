@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_AGENT_DIRS = (".agents", ".codex", ".cursor-agent", ".agent-index")
+DEFAULT_AGENT_DIRS = (".agents/embedding-codebase", ".agents", ".codex", ".cursor-agent", ".agent-index")
 
 
 def candidate_names() -> tuple[str, ...]:

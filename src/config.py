@@ -5,7 +5,9 @@ from pathlib import Path
 
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "project_index.py"
 AGENT_DIR = SCRIPT_PATH.parent
-ROOT = Path(os.environ.get("AGENT_INDEX_ROOT", AGENT_DIR.parent)).resolve()
+# A runtime nested inside .agents indexes the project containing .agents.
+DEFAULT_ROOT = AGENT_DIR.parent.parent if AGENT_DIR.parent.name == ".agents" else AGENT_DIR.parent
+ROOT = Path(os.environ.get("AGENT_INDEX_ROOT", DEFAULT_ROOT)).resolve()
 INDEX_DIR = AGENT_DIR / "index"
 INDEX_FILE = INDEX_DIR / "index.json"
 EMBEDDINGS_FILE = INDEX_DIR / "embeddings.json"

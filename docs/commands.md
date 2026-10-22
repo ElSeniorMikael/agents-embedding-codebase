@@ -16,4 +16,4 @@ agent-index search "where archive ingestion jobs are handled" --hybrid
 
 Commands that build or use vector embeddings require one backend: Ollama with `nomic-embed-text` available OR OpenAI with `OPENAI_API_KEY` configured.
 
-Generated index data lives in the installed agent folder's `index/` directory. If you install as `.agents`, that path is `.agents/index/`.
+Generated index data lives in the installed agent folder's `index/` directory. If you install as `.agents/embedding-codebase`, that path is `.agents/embedding-codebase/index/`.
